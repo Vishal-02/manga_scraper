@@ -7,6 +7,62 @@ import sqlite3
     - might need tkinter for everything i have planned
 '''
 
+# returns the title, current and latest from "all" the databases
+def all_db_data():
+    data = []
+
+    con = sqlite3.connect("comick.db")
+    cur = con.cursor()
+
+    for row in cur.execute("SELECT * FROM Manga"):
+        title, url, current, latest, hid = row
+        data.append([title, current, latest])
+
+    cur.close()
+    con.close()
+
+    con = sqlite3.connect("mangakakalot.db")
+    cur = con.cursor()
+
+    for row in cur.execute("SELECT * FROM Manga"):
+        title, url, current, latest = row
+
+        current = current.split(":")[0].split(" ")[-1]
+        if current == "" or current == " ":
+            current = 0
+        elif "." in current:
+            current = float(current)
+        else:
+            current = int(current)
+
+        latest = latest.split(":")[0].split(" ")[-1]
+        if latest == "" or latest == " ":
+            latest = 0
+        elif "." in latest:
+            latest = float(latest)
+        else:
+            latest = int(latest)
+
+        data.append([title, current, latest])
+
+    cur.close()
+    con.close()
+
+    return data
+
+# returns the data from the database, that's all it does
+def db_data():
+    con = sqlite3.connect("comick.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM Manga")
+    result = cur.fetchall()
+
+    cur.close()
+    con.close()
+    
+    return result
+
 # gets the hid for a specific manga name in comick
 def get_hid(name, page=1, limit=1):
     base_url = "https://api.comick.fun/v1.0/search/"
@@ -100,9 +156,11 @@ def insert_values(data):
     con.close()
 
 
-# # this has to be a list of lists, goes into the insert_values function
-data = [
-    ["The Beginning After The End", "https://comick.io/comic/00-the-beginning-after-the-end-1", 174, None, None]
-]
+if __name__ == '__main__':
+    pass
+    # # this has to be a list of lists, goes into the insert_values function
+    # data = [
+        
+    # ]
 
-insert_values(data)
+    # insert_values(data)
