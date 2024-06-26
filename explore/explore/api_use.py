@@ -13,6 +13,10 @@ def db_data():
 
     cur.execute("SELECT * FROM Manga")
     result = cur.fetchall()
+    to_return = []
+
+    for i, row in enumerate(result):
+        result[i] = (row[0], row[2], row[3])
 
     cur.close()
     con.close()
@@ -85,7 +89,7 @@ def update_latest():
     cur = con.cursor()
 
     for row in cur.execute("SELECT * FROM Manga"):
-        title, url, current, latest, hid, source = row
+        title, url, current, latest, hid, source, desc = row
         latest_chapter = int(get_latest_chapter(hid))
         updated_manga = []
 
@@ -121,34 +125,33 @@ def insert_values(data):
     cur.close()
     con.close()
 
-def fix_chapters(current, latest):
-    current = current.split(":")[0].split(" ")[-1]
-    if current == "" or current == " ":
-        current = 0
-    elif "." in current:
-        current = float(current)
-    else:
-        current = int(current)
+# gets the chapter image
+def get_image(hid):
+    base_url = f"https://api.comick.fun/chapter/{hid}/get_images"
 
-    latest = latest.split(":")[0].split(" ")[-1]
-    if latest == "" or latest == " ":
-        latest = 0
-    elif "." in latest:
-        latest = float(latest)
-    else:
-        latest = int(latest)
-    
-    return current, latest
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    response = requests.get(url=base_url, headers=headers)
+    return response
 
 
 if __name__ == '__main__':
-    # search_for_titles()
-    con = sqlite3.connect("comick.db")
-    cur = con.cursor()
-    for row in cur.execute("SELECT * FROM Manga"):
-        pprint(row)
-    cur.close()
-    con.close()
+    hid = 'oBfcDAEn'
+    image = get_image(hid)
+    print(image)
+    # con = sqlite3.connect("comick.db")
+    # cur = con.cursor()
+
+    # for row in cur.execute("SELECT * FROM Manga"):
+    #     pprint(row)
+
+    # cur.close()
+    # con.close()
+    
 
 
 '''
@@ -182,4 +185,26 @@ def search_for_titles():
     cur.close()
     con.close()
 
+    
+i used this to get the proper chapter numbers from the mangakakalot database
+it was 'chapter 1', 'chapter 52' and so on in the kakalot db, i wanted just the numbers
+
+def fix_chapters(current, latest):
+    current = current.split(":")[0].split(" ")[-1]
+    if current == "" or current == " ":
+        current = 0
+    elif "." in current:
+        current = float(current)
+    else:
+        current = int(current)
+
+    latest = latest.split(":")[0].split(" ")[-1]
+    if latest == "" or latest == " ":
+        latest = 0
+    elif "." in latest:
+        latest = float(latest)
+    else:
+        latest = int(latest)
+    
+    return current, latest
 '''

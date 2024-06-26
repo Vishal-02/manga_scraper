@@ -1,7 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from db_funcs import all_db_data
+from api_use import db_data
 
 previous_row = None
 previous_tag = None
@@ -66,7 +66,7 @@ label.pack(fill="x", side="top", anchor="nw", pady=10)
 ttk.Separator(root, orient="horizontal", bootstyle="light").pack(fill="x")
 
 # the tree that shows all the manga in my database
-columns = ('Title', 'Current', 'Latest', 'Download')
+columns = ('Title', 'Current', 'Latest')
 manga_tree = ttk.Treeview(
     root,
     bootstyle="success",
@@ -90,7 +90,7 @@ manga_tree.heading('Current', text='Current')
 manga_tree.column("Current", minwidth=0, width=120, stretch=NO, anchor=tk.CENTER)
 manga_tree.heading('Latest', text='Latest')
 manga_tree.column("Latest", minwidth=0, width=120, stretch=NO, anchor=tk.CENTER)
-manga_tree.heading('Download', text='Download')
+# manga_tree.heading('Download', text='Download')
 
 manga_tree.tag_configure('oddRow', background="#333333", foreground="#FFFFFF")
 manga_tree.tag_configure('evenRow', background="#444444", foreground="#FFFFFF")
@@ -98,7 +98,7 @@ manga_tree.tag_configure('hover', background='white', foreground='red')
 manga_tree.bind('<Motion>', on_enter_tree)
 manga_tree.bind('<Double-1>', on_double_click)
 
-manga_values = all_db_data()
+manga_values = db_data()
 for i, row in enumerate(manga_values):
     tag = "evenRow" if (i % 2 == 0) else "oddRow"
     manga_tree.insert('', END, values=row, iid=i, tags=(tag,))
