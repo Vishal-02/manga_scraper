@@ -1,22 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from api_use import all_db_data
-
-# def on_enter_tree(event):
-#     item = manga_tree.identify_row(event.y)
-#     if item:
-#         # Reset all items to their default tags
-#         for child in manga_tree.get_children():
-#             manga_tree.item(child, tags=manga_tree.item(child, 'tags')[0])
-
-#         # Apply the hover tag to the item under the cursor
-#         manga_tree.item(item, tags=('hover',))
-
-# def on_leave_tree(event):
-#     print("ENTERED THE LEAVE FUNCTION")
-#     for child in manga_tree.get_children():
-#         manga_tree.item(child, tags=manga_tree.item(child, 'tags')[0])
+from db_funcs import all_db_data
 
 previous_row = None
 previous_tag = None
@@ -31,10 +16,16 @@ def on_enter_tree(event):
             manga_tree.item(previous_row, tags=previous_tag)
 
         previous_row = item
-        
+
         if item:
             previous_tag = manga_tree.item(item, 'tags')
             manga_tree.item(item, tags=('hover',))
+
+def on_double_click(event):
+    item = manga_tree.identify_row(event.y)
+    title, *other = manga_tree.item(item=item)['values']
+    
+
 
 # root window
 root = ttk.Window(themename="solar")
@@ -55,11 +46,11 @@ style.configure(
     font=("Times New Roman", 14),
 )
 
-# style.map(
-#     "Treeview",
-#     background=[('hover', 'white')],
-#     foreground=[('hover', 'red')],
-# )
+style.map(
+    "Treeview",
+    background=[('selected', 'black')],
+    foreground=[('selected', 'white')],
+)
 
 # topmost label
 label = ttk.Label(
@@ -105,7 +96,7 @@ manga_tree.tag_configure('oddRow', background="#333333", foreground="#FFFFFF")
 manga_tree.tag_configure('evenRow', background="#444444", foreground="#FFFFFF")
 manga_tree.tag_configure('hover', background='white', foreground='red')
 manga_tree.bind('<Motion>', on_enter_tree)
-# manga_tree.bind('<Leave>', on_leave_tree)
+manga_tree.bind('<Double-1>', on_double_click)
 
 manga_values = all_db_data()
 for i, row in enumerate(manga_values):

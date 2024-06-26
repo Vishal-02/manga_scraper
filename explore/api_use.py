@@ -4,51 +4,7 @@ import sqlite3
 
 '''
     - have to make selective downloads available
-    - might need tkinter for everything i have planned
 '''
-
-# returns the title, current and latest from "all" the databases
-def all_db_data():
-    data = []
-
-    con = sqlite3.connect("comick.db")
-    cur = con.cursor()
-
-    for row in cur.execute("SELECT * FROM Manga"):
-        title, url, current, latest, hid = row
-        data.append([title, current, latest])
-
-    cur.close()
-    con.close()
-
-    con = sqlite3.connect("mangakakalot.db")
-    cur = con.cursor()
-
-    for row in cur.execute("SELECT * FROM Manga"):
-        title, url, current, latest = row
-
-        current = current.split(":")[0].split(" ")[-1]
-        if current == "" or current == " ":
-            current = 0
-        elif "." in current:
-            current = float(current)
-        else:
-            current = int(current)
-
-        latest = latest.split(":")[0].split(" ")[-1]
-        if latest == "" or latest == " ":
-            latest = 0
-        elif "." in latest:
-            latest = float(latest)
-        else:
-            latest = int(latest)
-
-        data.append([title, current, latest])
-
-    cur.close()
-    con.close()
-
-    return data
 
 # returns the data from the database, that's all it does
 def db_data():
@@ -63,8 +19,8 @@ def db_data():
     
     return result
 
-# gets the hid for a specific manga name in comick
-def get_hid(name, page=1, limit=1):
+# gets the entire response for a specific manga name in comick
+def get_response(name, page=1, limit=1):
     base_url = "https://api.comick.fun/v1.0/search/"
 
     params = {
@@ -82,12 +38,22 @@ def get_hid(name, page=1, limit=1):
 
     response = requests.get(url=base_url, headers=headers, params=params)
     if response.status_code == 200:
-        return response.json()[0]['hid']
+        if len(response.json()) > 0:
+            return response.json()[0]
+        else:
+            return "No Result"
     else:
         print(response.status_code)
         print(response.text)
         print("Error")
         return False
+
+# gets the hid for a specific manga name in comick
+def get_hid(title):
+    result = get_response(title)
+    if result == "No Result":
+        return result
+    return result['hid']
 
 # gets the latest chapter for a specific hid
 def get_latest_chapter(hid, limit=1, page=1, lang='en'):
@@ -119,7 +85,7 @@ def update_latest():
     cur = con.cursor()
 
     for row in cur.execute("SELECT * FROM Manga"):
-        title, url, current, latest, hid = row
+        title, url, current, latest, hid, source = row
         latest_chapter = int(get_latest_chapter(hid))
         updated_manga = []
 
@@ -140,14 +106,14 @@ def insert_values(data):
     cur = con.cursor()
 
     for i, row in enumerate(data):
-        title, url, current, latest, hid = row
+        title, url, current, latest, hid, source = row
         if hid == None:
             hid = get_hid(title)
         if latest == None:
             latest = get_latest_chapter(hid)
-        data[i] = (title, url, current, latest, hid)
+        data[i] = (title, url, current, latest, hid, source)
 
-    cur.executemany("INSERT INTO Manga VALUES(?, ?, ?, ?, ?)", data)
+    cur.executemany("INSERT INTO Manga VALUES(?, ?, ?, ?, ?, ?)", data)
     for row in cur.execute("SELECT * FROM Manga"):
         print(row)
 
@@ -155,12 +121,65 @@ def insert_values(data):
     cur.close()
     con.close()
 
+def fix_chapters(current, latest):
+    current = current.split(":")[0].split(" ")[-1]
+    if current == "" or current == " ":
+        current = 0
+    elif "." in current:
+        current = float(current)
+    else:
+        current = int(current)
+
+    latest = latest.split(":")[0].split(" ")[-1]
+    if latest == "" or latest == " ":
+        latest = 0
+    elif "." in latest:
+        latest = float(latest)
+    else:
+        latest = int(latest)
+    
+    return current, latest
+
 
 if __name__ == '__main__':
-    pass
-    # # this has to be a list of lists, goes into the insert_values function
-    # data = [
-        
-    # ]
+    # search_for_titles()
+    con = sqlite3.connect("comick.db")
+    cur = con.cursor()
+    for row in cur.execute("SELECT * FROM Manga"):
+        pprint(row)
+    cur.close()
+    con.close()
 
-    # insert_values(data)
+
+'''
+Function Graveyard:
+
+this function helped me take stuff from my mangakakalot database and put them in my comick database
+since all the manga i got for kakalot were there in comick, and comick has an api i can use
+that, and i can't scrape from kakalot
+
+def search_for_titles():
+    con = sqlite3.connect("mangakakalot.db")
+    cur = con.cursor()
+    comick_con = sqlite3.connect("comick.db")
+    comick_cur = comick_con.cursor()
+
+    data = cur.execute("SELECT * FROM Manga").fetchall()
+    for row in data:
+        title, url, current, latest = row
+        manga_response = get_response(title)
+        desc, hid = manga_response['desc'], manga_response['hid']
+        current, latest = fix_chapters(current, latest)
+
+        comick_cur.execute("SELECT * FROM Manga WHERE title=?", (title,))
+        present = comick_cur.fetchall()
+        if len(present) == 0 and hid != "No Result":
+            comick_cur.execute("INSERT INTO Manga VALUES(?, ?, ?, ?, ?, ?, ?)", (title, '', current, latest, hid, 'comick', desc))
+    
+    # comick_con.commit()
+    comick_cur.close()
+    comick_con.close()
+    cur.close()
+    con.close()
+
+'''
