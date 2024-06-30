@@ -6,7 +6,7 @@
 from scrapy import Item, Field
 
 class cover(Item):
-    # title = Field()
+    title = Field()
     image_urls = Field()
 
 class ExploreItem(Item):

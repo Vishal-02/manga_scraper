@@ -18,8 +18,10 @@ class CustomPipeline(ImagesPipeline):
         print(f"\n\n\n{text}\n\n\n")
 
     def file_path(self, request, response=None, info=None, *, item=None):
-        name = request.url.split('/')[-1]
-        return f"full/{name}"
+        name = item['title']
+        not_allowed = ['?', '/', '%']
+        name = "".join([i for i in name if i not in not_allowed])
+        return f"full/{name}.jpg"
     
 
 
