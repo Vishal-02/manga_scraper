@@ -23,6 +23,8 @@ SELENIUM_DRIVER_ARGUMENTS = [
 
 BOT_NAME = "explore"
 
+# LOG_LEVEL = 'WARNING'
+
 SPIDER_MODULES = ["explore.spiders"]
 NEWSPIDER_MODULE = "explore.spiders"
 
@@ -33,8 +35,15 @@ ITEM_PIPELINES = {
 #    "explore.pipelines.ExplorePipeline": 300,
 }
 
+COMMANDS_MODULE = 'commands'
+
+SPIDER_SETTINGS = {
+    'pyimagesearch-cover-spider': 'explore.spider_settings.coverspider',
+    'titleImageSpider': 'explore.spider_settings.titleImageSpider',
+}
+
 # Directory where the files should be stored
-IMAGES_STORE = "D:/Vishals Folder/Study/Code/Python/web_scraping/explore/explore/images"
+IMAGES_STORE = "D:/Vishals Folder/Study/Code/Python/manga_project/images"
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html

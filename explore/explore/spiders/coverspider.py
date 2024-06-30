@@ -8,50 +8,10 @@ from selenium.webdriver.chrome.options import Options
 from PIL import Image
 import json
 
-# i want to use the spider to scrape the bookmarks of my mangakakalot account
-# so that i can populate the database. I can do this with just selenium, but scrapy's
-# just faster and i wanna try it out
-class CoverSpider(Spider):
-    name = "bookmark_scraper"
-    custom_settings = {"USER_AGENT": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
-
-    def start_requests(self):
-        url = "https://manganato.com/"
-        bkm_url = "https://manganato.com/bookmark"
-        
-        # i want to use the selenium webdriver to go to the bookmarks page
-        # using the cookies i give it to log in.
-
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--enable-cookies")
-        
-        driver = webdriver.Chrome(
-            "../../chromedriver-win64/chromedriver.exe",
-            options=chrome_options
-        )
-
-        driver.get(url)
-
-        with open("manga_cookies.json", "r") as file:
-            cookies = json.load(file)
-
-        for cookie in cookies:
-            driver.add_cookie(cookie)
-
-        driver.refresh()
-        yield SeleniumRequest(
-            url=bkm_url,
-            callback=self.parse,
-        )
-
-    def parse(self, response):
-        print(response.body)
-
 # this is the spider i used to scrape asurascans, i'll keep it here for the reference
 # but now i'm trying to use selenium and all to link my database to it as well
 # so i rename this spider and the one i actually want to use is above
-class _CoverSpider(Spider):
+class CoverSpider(Spider):
     name = "pyimagesearch-cover-spider"
     start_urls = ["https://asurascans.us/read-en-us/the-return-of-the-disaster-class-hero/chapter-0/"]
     custom_settings = {"USER_AGENT": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
