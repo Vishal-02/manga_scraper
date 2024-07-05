@@ -1,19 +1,21 @@
 import requests
-from pprint import pprint
+from dotenv import load_dotenv
+from os import getenv
 import sqlite3
 
 '''
     - have to make selective downloads available
 '''
+load_dotenv()
+DB_PATH = getenv('DB_PATH')
 
 # returns the data from the database, that's all it does
 def db_data():
-    con = sqlite3.connect("comick.db")
+    con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
 
     cur.execute("SELECT * FROM Manga")
     result = cur.fetchall()
-    to_return = []
 
     for i, row in enumerate(result):
         result[i] = (row[0], row[2], row[3])
@@ -85,7 +87,7 @@ def get_latest_chapter(hid, limit=1, page=1, lang='en'):
 
 # checks for and updates the latest chapter of the stuff in the db
 def update_latest():
-    con = sqlite3.connect("comick.db")
+    con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
 
     for row in cur.execute("SELECT * FROM Manga"):
@@ -106,7 +108,7 @@ def update_latest():
 # inserts new entries into the db, for more comicks i might wanna read 
 # i should proabaly automate this too, would be useful to check and update my current read chapters 
 def insert_values(data):
-    con = sqlite3.connect("comick.db")
+    con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
 
     for i, row in enumerate(data):
@@ -143,7 +145,7 @@ if __name__ == '__main__':
     hid = 'oBfcDAEn'
     image = get_image(hid)
     print(image)
-    # con = sqlite3.connect("comick.db")
+    # con = sqlite3.connect(DB_PATH)
     # cur = con.cursor()
 
     # for row in cur.execute("SELECT * FROM Manga"):

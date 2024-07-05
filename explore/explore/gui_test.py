@@ -1,7 +1,16 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from PIL import Image, ImageTk, UnidentifiedImageError
+import os
 from api_use import db_data
+import sqlite3
+from os import getenv
+from dotenv import load_dotenv
+from io import BytesIO
+
+load_dotenv()
+DB_PATH = getenv('DB_PATH')
 
 class baseApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -142,49 +151,71 @@ class InfoPage(tk.Frame):
     def __init__(self, parent, controller, *args):
         tk.Frame.__init__(self, parent)
 
-        self.columnconfigure(0, weight=1, minsize=150)
+        self.columnconfigure(0, weight=2, minsize=150)
         self.columnconfigure(1, weight=0, minsize=2)
-        self.columnconfigure(2, weight=1, minsize=250)
-        self.rowconfigure(0, weight=1, minsize=30)
-        self.rowconfigure(1, weight=1, minsize=2)
-        self.rowconfigure(2, weight=1, minsize=100)
-        self.rowconfigure(3, weight=1, minsize=2)
-        self.rowconfigure(4, weight=1, minsize=100)
+        self.columnconfigure(2, weight=4, minsize=250)
+        self.rowconfigure(0, weight=1, minsize=2)
+        self.rowconfigure(1, weight=4, minsize=30)
+        self.rowconfigure(2, weight=4, minsize=2)
+        self.rowconfigure(3, weight=4, minsize=100)
+        self.rowconfigure(4, weight=4, minsize=2)
+        self.rowconfigure(5, weight=4, minsize=100)
+        self.rowconfigure(6, weight=4, minsize=100)
 
-        image = ttk.Label(self, text="Image")
-        image.grid(row=0, column=0, rowspan=3, sticky='ns')
+        # navigation bar frame
+        nav_bar = ttk.Frame(self, bootstyle='success')
+        nav_bar.grid(row=0, column=0, columnspan=3, sticky=(tk.N, tk.E, tk.W))
+
+        # back button in nav_bar
+        button1 = ttk.Button(nav_bar, text ="StartPage",
+                            command = lambda : controller.show_frame(Updated))
+        button1.pack(padx=10, pady=10, anchor='center', side='left')
+
+        self.image = ttk.Label(self)
+        self.image.grid(row=1, column=0, rowspan=3, sticky='ns')
 
         sep = ttk.Separator(self, orient='vertical')
-        sep.grid(row=0, column=1, rowspan=5, sticky='ns')
+        sep.grid(row=1, column=1, rowspan=5, sticky='ns')
 
         self.title = ttk.Label(self, text="Title")
-        self.title.grid(row=0, column=2)
+        self.title.grid(row=1, column=2)
 
         sep = ttk.Separator(self, orient='horizontal')
-        sep.grid(row=1, column=1, columnspan=2, sticky='ew')
+        sep.grid(row=2, column=1, columnspan=2, sticky='ew')
 
         desc = ttk.Label(self, text="Description")
-        desc.grid(row=2, column=2)
+        desc.grid(row=3, column=2)
 
         sep = ttk.Separator(self, orient='horizontal')
-        sep.grid(row=3, column=1, columnspan=2, sticky='ew')
+        sep.grid(row=4, column=1, columnspan=2, sticky='ew')
 
         other = ttk.Label(self, text="Other")
-        other.grid(row=4, column=2)
-        # self.label = ttk.Label(self, text="whatever")
-        # self.label.grid(row = 0, column = 4, padx = 10, pady = 10)
-  
-        # # button to show frame 2 with text
-        # # layout2
-        # button1 = ttk.Button(self, text ="StartPage",
-        #                     command = lambda : controller.show_frame(Updated))
-     
-        # # putting the button in its place 
-        # # by using grid
-        # button1.grid(row = 1, column = 1, padx = 10, pady = 10)
+        other.grid(row=5, column=2)
     
     def update_content(self, *args):
         self.title.config(text=args[0])
+        
+        # get the binary image
+        con = sqlite3.connect(DB_PATH)
+        cur = con.cursor()
+
+        title = args[0]
+        image = cur.execute("SELECT image from Manga where title=?", (title,)).fetchone()[0]
+        try:
+            image = Image.open(BytesIO(image))
+        except UnidentifiedImageError as e:
+            print("whoopsie, you did a lil fucky wucky")
+            print(f"Here's the image you got: {image}")
+            print(f"{title}")
+            
+
+        cur.close()
+        con.close()
+
+
+        photo = ImageTk.PhotoImage(image)
+        self.image.config(image=photo)
+        self.image.image = photo
 
 # root window
 app = baseApp()
