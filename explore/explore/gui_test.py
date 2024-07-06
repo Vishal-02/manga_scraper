@@ -201,6 +201,8 @@ class InfoPage(tk.Frame):
 
         title = args[0]
         image = cur.execute("SELECT image from Manga where title=?", (title,)).fetchone()[0]
+        if image is None:
+            print("AYO WHAT THE FUCK")
         try:
             image = Image.open(BytesIO(image))
         except UnidentifiedImageError as e:
@@ -212,8 +214,11 @@ class InfoPage(tk.Frame):
         cur.close()
         con.close()
 
-
-        photo = ImageTk.PhotoImage(image)
+        try:
+            photo = ImageTk.PhotoImage(image)
+        except KeyError as k:
+            print("new key error just dropped, ")
+            print(f"{title}\n{image}")
         self.image.config(image=photo)
         self.image.image = photo
 
