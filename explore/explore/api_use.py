@@ -1,6 +1,7 @@
 import requests
 from dotenv import load_dotenv
 from os import getenv
+from pprint import pprint
 import sqlite3
 
 '''
@@ -143,8 +144,8 @@ def get_image(hid):
 
 if __name__ == '__main__':
     hid = 'oBfcDAEn'
-    image = get_image(hid)
-    print(image)
+    title = "The Greatest Estate Developer"
+    pprint(get_response(title))
     # con = sqlite3.connect(DB_PATH)
     # cur = con.cursor()
 

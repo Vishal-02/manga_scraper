@@ -8,6 +8,10 @@
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exceptions import DropItem
 
+class ImageDownloadPipeline(ImagesPipeline):
+    def __init__(self, store_uri, download_func=None, settings=None):
+        super().__init__(store_uri, download_func, settings)
+
 class CustomPipeline(ImagesPipeline):
     def __init__(self, store_uri, download_func=None, settings=None):
         super().__init__(store_uri, download_func, settings)

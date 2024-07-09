@@ -40,6 +40,7 @@ COMMANDS_MODULE = 'commands'
 SPIDER_SETTINGS = {
     'pyimagesearch-cover-spider': 'explore.spider_settings.coverspider',
     'titleImageSpider': 'explore.spider_settings.titleImageSpider',
+    'comickspider': 'explore.spider_settings.comickspider',
 }
 
 # Directory where the files should be stored

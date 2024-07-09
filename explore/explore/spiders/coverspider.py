@@ -1,6 +1,7 @@
 from ..items import cover
 from scrapy import Spider
 from scrapy import signals
+from scrapy_selenium import SeleniumRequest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
@@ -12,19 +13,11 @@ import json
 # so i rename this spider and the one i actually want to use is above
 class CoverSpider(Spider):
     name = "coverSpider"
-    start_urls = ["https://comick.io"]
+    start_urls = ["https://asurascans.us/read-en-us/the-return-of-the-disaster-class-hero/chapter-0/"]
     custom_settings = {"USER_AGENT": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
 
     def __init__(self, name: str | None = None, **kwargs: Image.Any):
         super().__init__(name, **kwargs)
-
-        # selenium webdriver initialization
-        options = Options()
-        options.add_argument('--headless')
-        chromedriver_path = "..\..\..\web_scraping\chromedriver-win64\chromedriver.exe"
-        self.driver = webdriver.Chrome(chromedriver_path, options=options)
-
-        # variables required for the downloading
         self.image_downloaded = 0
         self.all_image_paths = []
 
@@ -62,16 +55,13 @@ class CoverSpider(Spider):
         image_one.save("images/full/result.pdf", save_all=True, append_images=image_paths[1:])
 
     def parse(self, response):
-        # i need to get the chapters first
-
-
-        pages = None
+        pages = response.xpath("//img[starts-with(@id, 'image-')]/@data-src").getall()
 
         for page in pages:
             self.image_downloaded += 1
             url = page.strip("\n\t")
             self.all_image_paths.append(f"images/full/{url.split('/')[-1]}")
-            # self.printThree(self.all_image_paths)
+            self.printThree(self.all_image_paths)
             yield cover(image_urls=[url])
 
 
