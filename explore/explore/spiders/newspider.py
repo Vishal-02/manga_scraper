@@ -1,9 +1,6 @@
-from ..items import cover
+from ..items import chap_images
 from scrapy import Spider
 from scrapy import signals
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 from scrapy_selenium import SeleniumRequest
 from PIL import Image
 
@@ -50,10 +47,18 @@ class CoverSpider(Spider):
         # now that we're in the right page, visit the link for the first chapter till the last chapter
         # and download the chapter
         pages = response.find_elements_by_xpath("//tbody")[2]
+        pages = pages.find_elements_by_xpath(".//tr/td/a")
         for page in pages:
-            pages = page.find_element_by_xpath(".//tr/td/a").text
-            int(pages[4:-5])
+            num = page.find_element_by_xpath(".//div/span")
+            if self.last_chapter >= int(num.text[4:]) >= self.first_chapter:
+                # make a callback to go and get the chapter images
+                pass
         
+        # check if we're done going through pages or if we need to go further
+        if latest_page_chapter < self.last_chapter:
+            self.page -= 1
+            yield SeleniumRequest(self.start_url.format(self.page, self.group), callback=self.parse)
+
 
         # some code that'll help later
         # links = []

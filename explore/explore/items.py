@@ -9,7 +9,6 @@ class cover(Item):
     title = Field()
     image_urls = Field()
 
-class ExploreItem(Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class chap_images(Item):
+    image_urls = Field()
+    chapter = Field()
