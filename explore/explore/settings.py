@@ -10,9 +10,9 @@
 from shutil import which
 
 SELENIUM_DRIVER_NAME = 'chrome'
-SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
+SELENIUM_DRIVER_EXECUTABLE_PATH = "D:\Vishals Folder\Study\Code\Python\web_scraping\chromedriver-win64\chromedriver.exe"
 SELENIUM_DRIVER_ARGUMENTS = [
-    '--headless',
+    # '--headless',
     '--disable-javascript=false',
     '--enable-cookies',
     # '--disable-gpu',

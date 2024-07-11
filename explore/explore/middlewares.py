@@ -4,10 +4,28 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from selenium import webdriver
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
+class CaptchaMiddleware:
+    def __init__(self) -> None:
+        pass
+
+    def process_request(self, request, spider):
+        if not self.driver:
+            self.driver = webdriver.Chrome()
+            self.driver.get(request.url)
+
+        try:
+            pass
+        except:
+            pass
+
+    def __delattr__(self, name: str) -> None:
+        if self.driver:
+            self.driver.quit
 
 class ExploreSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
